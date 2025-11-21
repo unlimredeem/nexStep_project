@@ -1,0 +1,97 @@
+<div class="max-w-2xl mx-auto animate-slide-up">
+
+    <div class="mb-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Design Your Form</h2>
+        <p class="text-gray-500 dark:text-gray-400">Add questions and customize your feedback collector.</p>
+    </div>
+
+    <form action="/api/forms" method="POST" class="space-y-6">
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <label for="formName"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
+                Form Name</label>
+            <input type="text" id="formName" name="formName" placeholder="e.g. Join Us" required
+                class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+        </div>
+
+        <div id="questions-container" class="space-y-4">
+            <div
+                class="question-group bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 relative group hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
+                <div class="absolute top-4 right-4 text-gray-300 font-bold text-6xl opacity-10 select-none">1</div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question Text</label>
+                    <input type="text" name="questions[0][label]" placeholder="What do you want to ask?" required
+                        class="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none dark:text-white transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Input Type</label>
+                    <div class="relative">
+                        <select name="questions[0][type]"
+                            class="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none appearance-none dark:text-white cursor-pointer transition-all">
+                            <option value="text">Text (Long Answer)</option>
+                            <option value="rating">Star Rating (1-5)</option>
+                            <option value="multiple-choice">Multiple Choice (Yes/No)</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-400">
+                            <i class="ph-bold ph-caret-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-4 pt-4">
+            <button type="button" id="add-question"
+                class="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-gray-600 dark:text-gray-300 font-medium hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-200">
+                <i class="ph-bold ph-plus"></i> Add Question
+            </button>
+
+            <button type="submit"
+                class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-1 transform transition-all duration-200">
+                Publish Form
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    let questionCounter = 1;
+
+    document.getElementById('add-question').addEventListener('click', () => {
+        const container = document.getElementById('questions-container');
+
+        const newQuestionHTML = `
+      <div class="question-group bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 relative group hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200 animate-fade-in">
+        <div class="absolute top-4 right-4 text-gray-300 font-bold text-6xl opacity-10 select-none">${questionCounter + 1}</div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question Text</label>
+          <input type="text" name="questions[${questionCounter}][label]" placeholder="What do you want to ask?" required 
+            class="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none dark:text-white transition-all">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Input Type</label>
+          <div class="relative">
+            <select name="questions[${questionCounter}][type]" class="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none appearance-none dark:text-white cursor-pointer transition-all">
+              <option value="text">Text (Long Answer)</option>
+              <option value="rating">Star Rating (1-5)</option>
+              <option value="multiple-choice">Multiple Choice (Yes/No)</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-400">
+              <i class="ph-bold ph-caret-down"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+        container.insertAdjacentHTML('beforeend', newQuestionHTML);
+        questionCounter++;
+    });
+</script>

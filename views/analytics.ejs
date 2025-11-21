@@ -1,0 +1,130 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="animate-slide-up space-y-8">
+
+    <div class="flex justify-between items-center">
+        <div>
+            <a href="/dashboard" class="text-sm text-gray-500 hover:text-blue-500 mb-2 inline-block">← Back to
+                Dashboard</a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                <%= form.formName %>
+            </h1>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Responses</p>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                <%= stats.total %>
+            </h3>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Positive Feedback</p>
+            <h3 class="text-3xl font-bold text-green-500 mt-1">
+                <%= stats.positive %>
+            </h3>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Negative Alerts</p>
+            <h3 class="text-3xl font-bold text-red-500 mt-1">
+                <%= stats.negative %>
+            </h3>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Sentiment Distribution</h3>
+            <div class="relative h-64 w-full flex justify-center">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+        </div>
+
+        <div
+            class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Word Cloud</h3>
+            <div
+                class="flex-grow flex flex-wrap items-center justify-center gap-4 p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                <% if(wordCloud.length===0) { %>
+                    <p class="text-gray-400">Not enough data yet.</p>
+                    <% } else { %>
+                        <% wordCloud.forEach(word=> { %>
+                            <span
+                                class="<%= word.weight %> <%= word.color %> font-bold hover:scale-110 transition-transform select-none">
+                                <%= word.text %>
+                            </span>
+                            <% }) %>
+                                <% } %>
+            </div>
+        </div>
+
+    </div>
+
+    <div
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Recent Responses</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-sm uppercase">
+                        <th class="px-6 py-4">Answers</th>
+                        <th class="px-6 py-4">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <% recentFeedback.forEach(r=> { %>
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                <% r.answers.forEach(a=> { %>
+                                    <div class="mb-1"><span class="font-bold">
+                                            <%= a.questionLabel %>:
+                                        </span>
+                                        <%= a.answer %>
+                                    </div>
+                                    <% }) %>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                <%= r.submittedAt.toLocaleDateString() %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const posData = Number('<%= stats.positive %>');
+    const neuData = Number('<%= stats.neutral %>');
+    const negData = Number('<%= stats.negative %>');
+
+    const ctx = document.getElementById('sentimentChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Neutral', 'Negative'],
+            datasets: [{
+                data: [posData, neuData, negData],
+                backgroundColor: ['#10b981', '#94a3b8', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'
+                    }
+                }
+            }
+        }
+    });
+</script>
