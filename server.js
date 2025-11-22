@@ -32,12 +32,13 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: MONGO_URI }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 30
+    }
 }));
 
 const isAuthenticated = (req, res, next) => {
-    if (req.session.userId) {
-        return next();
-    }
+    if (req.session.userId) return next();
     res.redirect('/login');
 };
 
@@ -60,8 +61,7 @@ app.post('/auth/signup', async (req, res) => {
         req.session.userId = newUser._id;
         res.redirect('/');
     } catch (error) {
-        console.log(error);
-        res.send("Error creating user (Email might be taken)");
+        res.send("Error creating user");
     }
 });
 
@@ -83,7 +83,6 @@ app.post('/auth/login', async (req, res) => {
         }
         res.send("Invalid Credentials");
     } catch (error) {
-        console.log(error);
         res.send("Login Error");
     }
 });
@@ -132,7 +131,6 @@ app.get('/feedback/:id', async (req, res) => {
     try {
         const form = await Form.findById(req.params.id);
         if (!form) return res.status(404).send('Form not found');
-
         res.render('public-form', {
             title: form.formName,
             form: form,
@@ -146,20 +144,16 @@ app.get('/feedback/:id', async (req, res) => {
 app.post('/feedback/:id/submit', async (req, res) => {
     try {
         const form = await Form.findById(req.params.id);
-
         const answersArray = form.questions.map((q, index) => ({
             questionLabel: q.label,
             answer: req.body.answers[index]
         }));
-
         await Response.create({
             formId: form._id,
             answers: answersArray
         });
-
         res.render('success', { title: 'Thank You' });
     } catch (error) {
-        console.log(error);
         res.send("Error submitting form");
     }
 });
@@ -175,7 +169,6 @@ app.get('/dashboard/analytics/:id', isAuthenticated, async (req, res) => {
         responses.forEach(r => {
             const textAnswers = r.answers.map(a => a.answer).join(" ");
             allText += " " + textAnswers;
-
             const analysis = sentiment.analyze(textAnswers);
             if (analysis.score > 0) stats.positive++;
             else if (analysis.score < 0) stats.negative++;
@@ -211,7 +204,6 @@ app.get('/dashboard/analytics/:id', isAuthenticated, async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
         res.redirect('/dashboard');
     }
 });
