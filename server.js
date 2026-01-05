@@ -13,7 +13,7 @@ const Form = require('./models/feedback.model');
 const Response = require('./models/response.model');
 
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 const MONGO_URI = 'mongodb+srv://shauryaprabhakar097_db_user:darko7@learning.jqzdv2j.mongodb.net/';
 
 mongoose.connect(MONGO_URI)
@@ -52,16 +52,30 @@ app.get('/signup', (req, res) => res.render('signup', { title: 'Sign Up' }));
 
 app.post('/auth/signup', async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const { username, email, password } = req.body;
+
+        // 1. Check if user already exists manually (Optional but helpful)
+        const userExists = await User.findOne({ $or: [{ email }, { username }] });
+        if (userExists) {
+            return res.send("User or Email already exists!");
+        }
+
+        // 2. Hash and Create
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({
-            username: req.body.username,
-            email: req.body.email,
+            username: username,
+            email: email,
             password: hashedPassword
         });
+
+        // 3. Set session and redirect
         req.session.userId = newUser._id;
-        res.redirect('/');
+        res.redirect('/dashboard'); // Better to redirect to dashboard after signup
+
     } catch (error) {
-        res.send("Error creating user");
+        // This will print the EXACT error in your terminal
+        console.error("SIGNUP ERROR:", error);
+        res.status(500).send("Error creating user: " + error.message);
     }
 });
 
@@ -109,6 +123,7 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
     }
 });
 
+// form builder ke liye
 app.get('/create', isAuthenticated, (req, res) => {
     res.render('form-builder', { title: 'Create Form' });
 });
@@ -141,6 +156,7 @@ app.get('/feedback/:id', async (req, res) => {
     }
 });
 
+//ye vala feedback ke liye id ke sath
 app.post('/feedback/:id/submit', async (req, res) => {
     try {
         const form = await Form.findById(req.params.id);

@@ -1,4 +1,3 @@
-// const mongoose = require('mongoose');
 
 // const adminSchema = new mongoose.Schema({
 //     username: { type: String, required: true, unique: true },
@@ -11,7 +10,7 @@ mongoose.connect('mongodb+srv://shauryaprabhakar097_db_user:darko7@learning.jqzd
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB...', err));
 
-// const mongoose = require('mongoose');
+
 
 const questionSchema = new mongoose.Schema({
     label: String,
